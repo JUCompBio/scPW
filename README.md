@@ -21,15 +21,20 @@ uv sync
 
 ## Usage
 
-### Step 1: Preprocess raw data
+### Step 1: Download preprocessed data
 
-Place raw 10x Genomics files under `raw/<dataset>/` (matrix, barcodes, features), then:
+Preprocessed `.h5ad` files for all seven datasets are available as [release assets](https://github.com/JUCompBio/scPW/releases/tag/v0.1.0):
+
+```bash
+mkdir processed
+gh release download v0.1.0 --repo JUCompBio/scPW --dir processed
+```
+
+Alternatively, to preprocess from raw 10x Genomics files yourself, place them under `raw/<dataset>/` and run:
 
 ```bash
 uv run process_data.py --dataset ovary
 ```
-
-This produces a preprocessed `.h5ad` file in `processed/`.
 
 ### Step 2: Run the scPathWalk pipeline
 
