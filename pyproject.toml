@@ -1,0 +1,26 @@
+[project]
+name = "scpathwalk"
+version = "0.1.0"
+description = "scPathWalk: Improving Cell Subpopulation Discovery through Interactome Integration"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Ashmita Dey"},
+    {name = "Rangan Das"},
+    {name = "Ujjwal Maulik"},
+    {name = "Sanghamitra Bandyopadhyay"},
+]
+dependencies = [
+    "scanpy[leiden]",
+    "scvi-tools",
+    "gseapy",
+    "matplotlib",
+    "scikit-learn",
+    "scikit-misc",
+    "tqdm",
+    "requests",
+]
+
+[project.scripts]
+process-data = "process_data:main"
+run-pipeline = "run_pipeline:main"
