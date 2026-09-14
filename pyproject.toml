@@ -1,26 +1,68 @@
 [project]
 name = "scpathwalk"
-version = "0.1.0"
-description = "scPathWalk: Improving Cell Subpopulation Discovery through Interactome Integration"
-requires-python = ">=3.10"
-license = {text = "MIT"}
-authors = [
-    {name = "Ashmita Dey"},
-    {name = "Rangan Das"},
-    {name = "Ujjwal Maulik"},
-    {name = "Sanghamitra Bandyopadhyay"},
-]
+version = "1.0.0"
+description = "Network-regularised gene dispersion for single-cell RNA-seq clustering"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.11"
+
+# Pinned deliberately. Numerical results depend on these versions: an unpinned
+# upgrade of torch 2.10 -> 2.11 shifted one dataset's cluster count from 14 to 18
+# at a fixed seed and configuration. Anything that changes the embedding, the graph
+# libraries, or the metric implementations should be a recorded decision rather
+# than a side effect of when `uv sync` last ran.
 dependencies = [
-    "scanpy[leiden]",
-    "scvi-tools",
-    "gseapy",
-    "matplotlib",
-    "scikit-learn",
-    "scikit-misc",
-    "tqdm",
-    "requests",
+    # --- numerics: these determine the results -----------------------------
+    # Direct dependency so [tool.uv.sources] below can route it to the CUDA
+    # wheel index; otherwise it resolves transitively via scvi-tools to +cpu.
+    "torch==2.11.0",
+    "scvi-tools==1.5.0.post1",
+    "scanpy[leiden]==1.12.3",
+    "anndata==0.13.2",
+    "numpy==2.5.2",
+    "scipy==1.18.0",
+    "scikit-learn==1.9.0",
+    "networkx==3.6.1",
+    "igraph==1.0.0",
+    "leidenalg==0.12.0",
+    "umap-learn==0.5.12",
+    "pandas==3.0.5",
+    # Required by scanpy's seurat_v3 highly-variable-gene flavour.
+    "scikit-misc==0.5.2",
+    # --- source acquisition ------------------------------------------------
+    "requests==2.34.2",
+    # pandas.read_parquet / to_parquet, used for the staged interactome cache.
+    "pyarrow==25.0.1",
+    # Enrichr queries for the optional pathway-enrichment helpers.
+    "gseapy==1.3.1",
+    # --- reporting (does not affect numbers) -------------------------------
+    "matplotlib==3.11.1",
+    "structlog>=25.5.0",
+    "rich>=14.3.3",
 ]
 
-[project.scripts]
-process-data = "process_data:main"
-run-pipeline = "run_pipeline:main"
+# --- CUDA -------------------------------------------------------------------
+# Model training is the only GPU-bound stage. PyPI ships a CPU-only torch on
+# Windows, so the CUDA 12.8 wheel channel is pinned explicitly. Declaring it here,
+# rather than as a one-off `uv pip install`, means `uv sync` keeps the GPU build
+# instead of silently reverting to +cpu. Remove this block for a CPU-only install.
+[tool.uv.sources]
+torch = [{ index = "pytorch-cu128" }]
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.setuptools]
+packages = ["scpathwalk"]
+py-modules = ["util"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]

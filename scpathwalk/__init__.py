@@ -1,1 +1,1 @@
-"""scPathWalk -- Single-cell pathway-informed clustering pipeline."""
+"""scPathWalk — Single-cell pathway-informed clustering pipeline."""
